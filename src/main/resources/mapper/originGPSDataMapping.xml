@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yibo.gps.dao.OriginDataMapper">
+
+    <insert id="insert">
+        insert into origin_gps_data(
+            id,
+            manu_name,
+            serial_number,
+            data_type,
+            time,
+            valid,
+            latitude,
+            lat_flag,
+            longitude,
+            lon_flag,
+            speed,
+            direction,
+            date,
+            vehicle_status,
+            net_mcc,
+            net_mnc,
+            net_lac,
+            net_cellid,
+            voltage,
+            GSM,
+            satellites,
+            voltage_unit,
+            iccid
+        )
+        values (
+            #{id},
+            #{manuName},
+            #{serialNumber},
+            #{dataType},
+            #{time},
+            #{valid},
+            #{latitude},
+            #{lat_flag},
+            #{longitude},
+            #{lon_flag},
+            #{speed},
+            #{direction},
+            #{date},
+            #{vehicle_status},
+            #{net_mcc},
+            #{net_mnc},
+            #{net_lac},
+            #{net_cellid},
+            #{voltage},
+            #{GSM},
+            #{satellites},
+            #{voltage_unit},
+            #{iccid}
+        )
+    </insert>
+</mapper>
