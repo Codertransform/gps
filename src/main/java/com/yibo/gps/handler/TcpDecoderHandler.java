@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -36,6 +38,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         if (s == '*') {
             String msg = new String(data, StandardCharsets.UTF_8);
             msg = msg.substring(1,msg.length()-1);
+            System.out.println(msg);
             String[] split = msg.split(",");
             gpsData.setId(EntityIdGenerate.generateId());
             gpsData.setManuName(split[0]);
@@ -64,6 +67,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                 gpsData.setIccid(split[17]);
             }
             int i = originDataMapper.insert(gpsData);
+            System.out.println("接收到数据" + gpsData);
         }
         if (s == '$'){
             String hexString = HexConvert.BinaryToHexString( data ).replace( " ","" );
@@ -71,8 +75,20 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             gpsData.setId(EntityIdGenerate.generateId());
             gpsData.setSerialNumber(hexString.substring(2,12));
             gpsData.setDataType("No");
-            gpsData.setTime(hexString.substring(12,18));
-            gpsData.setDate(hexString.substring(18,24));
+            int h = Integer.parseInt(hexString.substring(12,14)) + 8;
+            String hour = "";
+            if (h < 10) {
+                hour = "0"+ h;
+            }else {
+                hour = String.valueOf(h);
+            }
+            String min = hexString.substring(14,16);
+            String sec = hexString.substring(16,18);
+            gpsData.setTime(hour + ":" + min + ":" +sec);
+            String day = hexString.substring(18,20);
+            String mon = hexString.substring(20,22);
+            String year = new SimpleDateFormat("yy").format(new Date()) + hexString.substring(22,24);
+            gpsData.setDate(year + "-" + mon + "-" + day);
             String latitude = hexString.substring(24,32);
             String longitude = hexString.substring(34,43);
             String lat = new DecimalFormat(".000000").format(Double.parseDouble(latitude.substring(2))/10000/60);
