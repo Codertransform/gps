@@ -28,6 +28,7 @@ public class HexConvert {
 
         return sb.toString();
     }
+
     public static byte[] hexStringToBytes(String hexString) {
         if (hexString == null || hexString.equals("")) {
             return null;

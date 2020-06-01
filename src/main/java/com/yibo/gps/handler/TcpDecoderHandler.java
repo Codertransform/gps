@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -44,7 +43,11 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             gpsData.setManuName(split[0]);
             gpsData.setSerialNumber(split[1]);
             gpsData.setDataType(split[2]);
-            gpsData.setTime(split[3]);
+            String time = split[3];
+            String hour  = String.valueOf(Integer.parseInt(time.substring(0,2)) + 8);
+            String min = time.substring(2,4);
+            String sec = time.substring(4,6);
+            gpsData.setTime(hour + ":" + min + ":" + sec);
             gpsData.setValid(split[4]);
             gpsData.setLatitude(position(split[5]));
             gpsData.setLat_flag(split[6]);
@@ -52,7 +55,11 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             gpsData.setLon_flag(split[8]);
             gpsData.setSpeed(split[9]);
             gpsData.setDirection(split[10]);
-            gpsData.setDate(split[11]);
+            String date = split[11];
+            String day = date.substring(0,2);
+            String mon = date.substring(2,4);
+            String year = new SimpleDateFormat("yy").format(new Date()) + date.substring(4,6);
+            gpsData.setDate(year + "-" + mon + "-" + day);
             gpsData.setVehicle_status(split[12]);
             gpsData.setNet_mcc(split[13]);
             gpsData.setNet_mnc(split[14]);
@@ -91,12 +98,10 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             gpsData.setDate(year + "-" + mon + "-" + day);
             String latitude = hexString.substring(24,32);
             String longitude = hexString.substring(34,43);
-            String lat = new DecimalFormat(".000000").format(Double.parseDouble(latitude.substring(2))/10000/60);
-            String lon = new DecimalFormat(".000000").format(Double.parseDouble(longitude.substring(3))/10000/60);
-            latitude = latitude.substring(0,2) + lat;
-            longitude = longitude.substring(0,3) + lon;
-            gpsData.setLatitude(latitude);
-            gpsData.setLongitude(longitude);
+            double lat = Double.parseDouble(String.valueOf(Long.parseLong(latitude)/1000000));
+            double lon = Double.parseDouble(String.valueOf(Long.parseLong(longitude)/1000000));
+            gpsData.setLatitude(String.valueOf(lat));
+            gpsData.setLongitude(String.valueOf(lon));
             String flag = hexString.substring(43,44);
             String bytes = HexConvert.hexString2binaryString(flag);
             char[] chars = bytes.toCharArray();
@@ -146,5 +151,12 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             position = front + "." + last + ps[1];
         }
         return position;
+    }
+
+    public static void main(String[] args) {
+//        String hex = "FFFFFBFF";
+        String hex = "FB";
+        String str = HexConvert.hexString2binaryString( hex );
+        System.out.println(str);
     }
 }
