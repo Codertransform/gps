@@ -32,6 +32,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         logger.info("解析client上报数据");
         byte[] data = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(data);
+        list.add(data);
         char s = (char) data[0];
         OriginGPSData gpsData = new OriginGPSData();
         if (s == '*') {
@@ -44,7 +45,11 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             gpsData.setSerialNumber(split[1]);
             gpsData.setDataType(split[2]);
             String time = split[3];
-            String hour  = String.valueOf(Integer.parseInt(time.substring(0,2)) + 8);
+            int h = Integer.parseInt(time.substring(0,2)) + 8;
+            String hour = "";
+            if (h < 10) {
+                 hour = "0" + String.valueOf(h);
+            }
             String min = time.substring(2,4);
             String sec = time.substring(4,6);
             gpsData.setTime(hour + ":" + min + ":" + sec);
