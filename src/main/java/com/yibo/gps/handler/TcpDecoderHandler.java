@@ -148,7 +148,6 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
     }
 
     private String position(String pos){
-        System.out.println(pos);
         String[] ps = pos.split("\\.");
         String position = "";
         if (ps[0] != null) {
