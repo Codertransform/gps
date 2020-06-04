@@ -2,6 +2,7 @@ package com.yibo.gps.handler;
 
 import com.yibo.gps.dao.OriginDataMapper;
 import com.yibo.gps.entity.OriginGPSData;
+import com.yibo.gps.mq.Producer;
 import com.yibo.gps.utils.EntityIdGenerate;
 import com.yibo.gps.utils.HexConvert;
 import io.netty.buffer.ByteBuf;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,6 +29,9 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
     @Autowired
     private OriginDataMapper originDataMapper;
 
+    @Resource
+    private Producer producer;
+
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
         logger.info("解析client上报数据");
@@ -38,7 +43,6 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         if (s == '*') {
             String msg = new String(data, StandardCharsets.UTF_8);
             msg = msg.substring(1,msg.length()-1);
-            System.out.println(msg);
             String[] split = msg.split(",");
             gpsData.setId(EntityIdGenerate.generateId());
             gpsData.setManuName(split[0]);
@@ -79,11 +83,11 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                 gpsData.setIccid(split[17]);
             }
             int i = originDataMapper.insert(gpsData);
+            producer.sendMsg("gps_transform_data",gpsData.toString());
             System.out.println("接收到数据" + gpsData);
         }
         if (s == '$'){
             String hexString = HexConvert.BinaryToHexString( data ).replace( " ","" );
-            System.out.println(hexString);
             gpsData.setId(EntityIdGenerate.generateId());
             gpsData.setSerialNumber(hexString.substring(2,12));
             gpsData.setDataType("No");
@@ -101,12 +105,8 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             String mon = hexString.substring(20,22);
             String year = new SimpleDateFormat("yy").format(new Date()) + hexString.substring(22,24);
             gpsData.setDate(year + "-" + mon + "-" + day);
-            String latitude = hexString.substring(24,32);
-            String longitude = hexString.substring(34,43);
-            double lat = Double.parseDouble(String.valueOf(Long.parseLong(latitude)/1000000));
-            double lon = Double.parseDouble(String.valueOf(Long.parseLong(longitude)/1000000));
-            gpsData.setLatitude(String.valueOf(lat));
-            gpsData.setLongitude(String.valueOf(lon));
+            gpsData.setLatitude(position2(hexString.substring(24,32)));
+            gpsData.setLongitude(position2(hexString.substring(34,43)));
             String flag = hexString.substring(43,44);
             String bytes = HexConvert.hexString2binaryString(flag);
             char[] chars = bytes.toCharArray();
@@ -142,11 +142,13 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             gpsData.setNet_lac(String.valueOf(Long.parseLong(hexString.substring(80,84),16)));
             gpsData.setNet_cellid(String.valueOf(Long.parseLong(hexString.substring(84,88),16)));
             int i = originDataMapper.insert(gpsData);
+            producer.sendMsg("gps_transform_data",gpsData.toString());
             System.out.println("收到发来的消息：" + gpsData);
         }
     }
 
     private String position(String pos){
+        System.out.println(pos);
         String[] ps = pos.split("\\.");
         String position = "";
         if (ps[0] != null) {
@@ -158,10 +160,11 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         return position;
     }
 
-    public static void main(String[] args) {
-//        String hex = "FFFFFBFF";
-        String hex = "FB";
-        String str = HexConvert.hexString2binaryString( hex );
-        System.out.println(str);
+    private String position2(String pos){
+        String position = "";
+        String front = pos.substring(0,pos.length()-6);
+        String last = pos.substring(pos.length()-6);
+        position = front + "." + last;
+        return position;
     }
 }

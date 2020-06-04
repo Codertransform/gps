@@ -1,5 +1,7 @@
 package com.yibo.gps.entity;
 
+import com.alibaba.fastjson.JSONObject;
+
 public class OriginGPSData {
     private String id;
     private String manuName;            //制造商名称
@@ -211,30 +213,30 @@ public class OriginGPSData {
 
     @Override
     public String toString() {
-        return "OriginGPSData{" +
-                "id='" + id + '\'' +
-                ", manuName='" + manuName + '\'' +
-                ", serialNumber='" + serialNumber + '\'' +
-                ", dataType='" + dataType + '\'' +
-                ", time='" + time + '\'' +
-                ", valid='" + valid + '\'' +
-                ", latitude='" + latitude + '\'' +
-                ", lat_flag='" + lat_flag + '\'' +
-                ", longitude='" + longitude + '\'' +
-                ", lon_flag='" + lon_flag + '\'' +
-                ", speed='" + speed + '\'' +
-                ", direction='" + direction + '\'' +
-                ", date='" + date + '\'' +
-                ", vehicle_status='" + vehicle_status + '\'' +
-                ", net_mcc='" + net_mcc + '\'' +
-                ", net_mnc='" + net_mnc + '\'' +
-                ", net_lac='" + net_lac + '\'' +
-                ", net_cellid='" + net_cellid + '\'' +
-                ", voltage='" + voltage + '\'' +
-                ", GSM='" + GSM + '\'' +
-                ", satellites='" + satellites + '\'' +
-                ", voltage_unit='" + voltage_unit + '\'' +
-                ", iccid='" + iccid + '\'' +
-                '}';
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id",id);
+        jsonObject.put("manuName",manuName);
+        jsonObject.put("serialNumber",serialNumber);
+        jsonObject.put("dataType",dataType);
+        jsonObject.put("time",time);
+        jsonObject.put("valid",valid);
+        jsonObject.put("latitude",latitude);
+        jsonObject.put("lat_flag",lat_flag);
+        jsonObject.put("longitude",longitude);
+        jsonObject.put("lon_flag",lon_flag);
+        jsonObject.put("speed",speed);
+        jsonObject.put("direction",direction);
+        jsonObject.put("date",date);
+        jsonObject.put("vehicle_status",vehicle_status);
+        jsonObject.put("net_mcc",net_mcc);
+        jsonObject.put("net_mnc",net_mnc);
+        jsonObject.put("net_lac",net_lac);
+        jsonObject.put("net_cellid",net_cellid);
+        jsonObject.put("voltage",voltage);
+        jsonObject.put("GSM",GSM);
+        jsonObject.put("satellites",satellites);
+        jsonObject.put("voltage_unit",voltage_unit);
+        jsonObject.put("iccid",iccid);
+        return jsonObject.toString();
     }
 }
