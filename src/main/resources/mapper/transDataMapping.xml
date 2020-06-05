@@ -8,13 +8,15 @@
             id,
             origin_id,
             latitude,
-            longitude
+            longitude,
+            time
         )
         values (
             #{id},
             #{originId},
             #{latitude},
-            #{longitude}
+            #{longitude},
+            #{time}
         )
     </insert>
 </mapper>

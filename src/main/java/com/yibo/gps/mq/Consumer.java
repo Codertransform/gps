@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +44,7 @@ public class Consumer {
         data.setOriginId(String.valueOf(jsonObject.get("id")));
         data.setLongitude(loca[0]);
         data.setLatitude(loca[1]);
+        data.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         transDao.insert(data);
         System.out.println("收到消息："+result);
     }

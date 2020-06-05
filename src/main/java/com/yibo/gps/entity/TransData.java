@@ -5,6 +5,7 @@ public class TransData {
     private String originId;
     private String latitude;
     private String longitude;
+    private String time;
 
     public String getId() {
         return id;
@@ -36,5 +37,13 @@ public class TransData {
 
     public void setLongitude(String longitude) {
         this.longitude = longitude;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 }
