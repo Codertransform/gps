@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -148,14 +149,11 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
     }
 
     private String position(String pos){
-        String[] ps = pos.split("\\.");
         String position = "";
-        if (ps[0] != null) {
-            int length = ps[0].length();
-            String front = ps[0].substring(0,length-2);
-            String last = ps[0].substring(length-2,length);
-            position = front + "." + last + ps[1];
-        }
+        String last = pos.substring(pos.length()-7);
+        String lat = new DecimalFormat(".000000").format(Double.parseDouble(last)/60);
+        String front = pos.substring(0,pos.length()-7);
+        position = front + lat;
         return position;
     }
 
@@ -163,7 +161,8 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         String position = "";
         String front = pos.substring(0,pos.length()-6);
         String last = pos.substring(pos.length()-6);
-        position = front + "." + last;
+        String lat = new DecimalFormat(".000000").format(Double.parseDouble(last)/60);
+        position = front + "." + lat;
         return position;
     }
 }
