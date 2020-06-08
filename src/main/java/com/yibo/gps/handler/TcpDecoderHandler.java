@@ -54,6 +54,8 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             String hour = "";
             if (h < 10) {
                  hour = "0" + String.valueOf(h);
+            }else {
+                hour = String.valueOf(h);
             }
             String min = time.substring(2,4);
             String sec = time.substring(4,6);
@@ -89,6 +91,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         }
         if (s == '$'){
             String hexString = HexConvert.BinaryToHexString( data ).replace( " ","" );
+            System.out.println(hexString);
             gpsData.setId(EntityIdGenerate.generateId());
             gpsData.setSerialNumber(hexString.substring(2,12));
             gpsData.setDataType("No");
@@ -129,10 +132,9 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                 }
             }
             gpsData.setSpeed(String.valueOf(Integer.parseInt(hexString.substring(44,47))*1.852));
-            gpsData.setDirection(hexString.substring(47,50));
+            gpsData.setDirection(hexString.substring(47,50)+".00");
             gpsData.setVehicle_status(hexString.substring(50,58));
-            long GSM = Long.parseLong(hexString.substring(62,64), 16);
-            gpsData.setGSM(String.valueOf(GSM));
+            gpsData.setGSM(String.valueOf(Long.parseLong(hexString.substring(62,64), 16)));
             gpsData.setSatellites(hexString.substring(64,66));
             long in = Long.parseLong(hexString.substring(66,68),16);
             long sn = Long.parseLong(hexString.substring(68,70),16);
@@ -161,8 +163,8 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         String position = "";
         String front = pos.substring(0,pos.length()-6);
         String last = pos.substring(pos.length()-6);
-        String lat = new DecimalFormat(".000000").format(Double.parseDouble(last)/60);
-        position = front + "." + lat;
+        String lat = new DecimalFormat(".000000").format(Double.parseDouble(last)/10000/60);
+        position = front + lat;
         return position;
     }
 }
