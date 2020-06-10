@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yibo.gps.dao.TrackMapper">
+
+    <select id="get" resultType="Track">
+        select
+            a.id as "id",
+            a.track_id as "trackId",
+            a.start_time as "startTime",
+            a.end_time as "endTime",
+            a.miles as "miles"
+        from track a
+        where 1=1
+        <if test="trackId != null and trackId != ''">
+            and a.track_id = #{trackId}
+        </if>
+    </select>
+</mapper>

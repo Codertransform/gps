@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yibo.gps.dao.DeviceDao">
+
+    <select id="get" resultType="Device">
+        select
+            a.id as "id",
+            a.sid as "sId",
+            a.tid as "tId",
+            a.device_id as "deviceId",
+            a.car_id as "carId",
+            a.status as "status"
+        from device a
+        where 1=1
+        <if test="deviceId != null and deviceId != ''">
+            and a.device_id = #{deviceId}
+        </if>
+    </select>
+</mapper>
