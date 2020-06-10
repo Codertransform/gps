@@ -167,4 +167,9 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         position = front + lat;
         return position;
     }
+
+    public static void main(String[] args) {
+        String hex = "FFFFFFFF";
+
+    }
 }
