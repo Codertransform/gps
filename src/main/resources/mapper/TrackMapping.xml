@@ -3,17 +3,22 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yibo.gps.dao.TrackMapper">
 
-    <select id="get" resultType="Track">
-        select
-            a.id as "id",
-            a.track_id as "trackId",
-            a.start_time as "startTime",
-            a.end_time as "endTime",
-            a.miles as "miles"
-        from track a
-        where 1=1
-        <if test="trackId != null and trackId != ''">
-            and a.track_id = #{trackId}
-        </if>
-    </select>
+    <insert id="insert">
+        insert into track(
+            id,
+            track_id,
+            car_id,
+            start_time,
+            end_time,
+            miles
+        )
+        values (
+            #{id},
+            #{trackId},
+            #{carId},
+            #{startTime},
+            #{endTime},
+            #{miles}
+        )
+    </insert>
 </mapper>

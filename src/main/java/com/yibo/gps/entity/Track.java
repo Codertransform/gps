@@ -3,6 +3,7 @@ package com.yibo.gps.entity;
 public class Track {
     private String id;
     private String trackId;
+    private String carId;
     private String startTime;
     private String endTime;
     private String miles;
@@ -21,6 +22,14 @@ public class Track {
 
     public void setTrackId(String trackId) {
         this.trackId = trackId;
+    }
+
+    public String getCarId() {
+        return carId;
+    }
+
+    public void setCarId(String carId) {
+        this.carId = carId;
     }
 
     public String getStartTime() {

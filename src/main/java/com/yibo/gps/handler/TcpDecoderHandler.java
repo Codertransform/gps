@@ -1,5 +1,6 @@
 package com.yibo.gps.handler;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yibo.gps.dao.DeviceDao;
 import com.yibo.gps.dao.OriginDataMapper;
@@ -35,6 +36,8 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
 
     private static final Logger logger = LoggerFactory.getLogger(TcpDecoderHandler.class);
 
+    private final Track track = new Track();
+
     @Autowired
     private OriginDataMapper originDataMapper;
 
@@ -67,7 +70,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             int h = Integer.parseInt(time.substring(0,2)) + 8;
             String hour = "";
             if (h < 10) {
-                 hour = "0" + String.valueOf(h);
+                 hour = "0" + h;
             }else {
                 hour = String.valueOf(h);
             }
@@ -86,12 +89,12 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             String mon = date.substring(2,4);
             String year = new SimpleDateFormat("yy").format(new Date()) + date.substring(4,6);
             gpsData.setDate(year + "-" + mon + "-" + day);
-            gpsData.setVehicle_status(split[12]);
+            Device device = new Device();
+            device.setDeviceId(gpsData.getSerialNumber());
+            Device dev = deviceDao.get(device);
             boolean acc = acc(split[12]);
             if (acc){
-                Device device = new Device();
-                device.setDeviceId(gpsData.getSerialNumber());
-                Device dev = deviceDao.get(device);
+                System.out.println("车辆启动");
                 String url = "https://tsapi.amap.com/v1/track/trace/add";
                 Map<String,String> map = new HashMap<>();
                 map.put("key","1c92d37732848ca864c4daac21454294");
@@ -101,12 +104,28 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                 JSONObject object = JSONObject.parseObject(result);
                 if (object.get("errcode").toString().equals("10000")){
                     JSONObject json = object.getJSONObject("data");
-                    Track track = new Track();
                     track.setId(EntityIdGenerate.generateId());
                     track.setTrackId(json.get("trid").toString());
+                    track.setStartTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    track.setCarId(dev.getCarId());
                     trackMapper.insert(track);
                 }
+            }else {
+                track.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                String url = "https://tsapi.amap.com/v1/track/terminal/trsearch";
+                Map<String,String> map = new HashMap<>();
+                map.put("key","1c92d37732848ca864c4daac21454294");
+                map.put("sid",dev.getsId());
+                map.put("tid",dev.gettId());
+                map.put("trid",track.getTrackId());
+                String result = HttpClientUtil.doPost(url,map);
+                JSONObject object = JSONObject.parseObject(result);
+                if (object.get("errcode").toString().equals("10000")) {
+                    JSONObject jsonObject = object.getJSONObject("data");
+                    JSONArray jsonArray = jsonObject.getJSONArray("tracks");
+                }
             }
+            gpsData.setVehicle_status(split[12]);
             gpsData.setNet_mcc(split[13]);
             gpsData.setNet_mnc(split[14]);
             gpsData.setNet_lac(split[15]);
@@ -167,7 +186,29 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             }
             gpsData.setSpeed(String.valueOf(Integer.parseInt(hexString.substring(44,47))*1.852));
             gpsData.setDirection(hexString.substring(47,50)+".00");
-            gpsData.setVehicle_status(hexString.substring(50,58));
+            String status = hexString.substring(50,58);
+            Device device = new Device();
+            device.setDeviceId(gpsData.getSerialNumber());
+            Device dev = deviceDao.get(device);
+            boolean acc = acc(status);
+            if (acc) {
+                String url = "https://tsapi.amap.com/v1/track/point/upload";
+                Map<String,String> map = new HashMap<>();
+                map.put("key","1c92d37732848ca864c4daac21454294");
+                map.put("sid",dev.getsId());
+                map.put("tid", dev.gettId());
+                map.put("trid", track.getTrackId());
+                JSONArray array = new JSONArray();
+                Map<String,String> map1 = new HashMap<>();
+                map1.put("location", gpsData.getLongitude() + "," + gpsData.getLatitude());
+                map1.put("locatetime", String.valueOf(new Date().getTime()));
+                map1.put("speed",gpsData.getSpeed());
+                map1.put("direction",gpsData.getDirection());
+                array.add(map1);
+                map.put("points",array.toJSONString());
+                HttpClientUtil.doPost(url,map);
+            }
+            gpsData.setVehicle_status(status);
             gpsData.setGSM(String.valueOf(Long.parseLong(hexString.substring(62,64), 16)));
             gpsData.setSatellites(hexString.substring(64,66));
             long in = Long.parseLong(hexString.substring(66,68),16);
@@ -205,11 +246,12 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
     private boolean acc(String status){
         String str = HexConvert.hexString2binaryString(status.substring(4,6));
         char ch = str.charAt(5);
+        System.out.println(ch);
         return ch != '0';
     }
 
     public static void main(String[] args) {
-        String hex = "FF";
+        String hex = "FB";
         String str = HexConvert.hexString2binaryString(hex);
         System.out.println(str);
     }
