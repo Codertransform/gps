@@ -3,6 +3,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yibo.gps.dao.TrackMapper">
 
+    <select id="get" resultType="Track">
+        select
+            a.id as "id",
+            a.track_id as "trackId",
+            a.car_id as "carId",
+            a.start_time as "startTime",
+            a.end_time as "endTime",
+            a.miles as "miles"
+        from track a
+        where 1=1
+        <if test="trackId != null and trackId != ''">
+            and a.track_id = #{trackId}
+        </if>
+    </select>
+
     <insert id="insert">
         insert into track(
             id,
@@ -21,4 +36,14 @@
             #{miles}
         )
     </insert>
+
+    <update id="update">
+        update track set
+            track_id = #{trackId},
+            car_id = #{carId},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            miles = #{miles}
+        where id = #{id}
+    </update>
 </mapper>
