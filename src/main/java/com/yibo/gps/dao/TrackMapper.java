@@ -12,4 +12,6 @@ public interface TrackMapper {
     Track get(@Param("trackId") String trackId);
 
     void update(Track track);
+
+    Track getLast();
 }

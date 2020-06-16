@@ -61,6 +61,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
         if (s == '*') {
             String msg = new String(data, StandardCharsets.UTF_8);
             msg = msg.substring(1,msg.length()-1);
+            System.out.println(msg);
             String[] split = msg.split(",");
             gpsData.setId(EntityIdGenerate.generateId());
             gpsData.setManuName(split[0]);
@@ -112,30 +113,9 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                     track.setCarId(dev.getCarId());
                     trackMapper.insert(track);
                     trackId = track.getTrackId();
+                    gpsData.setTrackId(trackId);
                 }
-            }/*else {
-                System.out.println("车辆熄火");
-                Track track = trackMapper.get(trackId);
-                track.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                String url = "https://tsapi.amap.com/v1/track/terminal/trsearch";
-                Map<String,String> map = new HashMap<>();
-                map.put("key","1c92d37732848ca864c4daac21454294");
-                map.put("sid",dev.getsId());
-                map.put("tid",dev.gettId());
-                map.put("trid",track.getTrackId());
-                String result = HttpClientUtil.doPost(url,map);
-                System.out.println(result);
-                JSONObject object = JSONObject.parseObject(result);
-                if (object.get("errcode").toString().equals("10000")) {
-                    System.out.println("123");
-                    JSONObject jsonObject = object.getJSONObject("data");
-                    JSONArray array = jsonObject.getJSONArray("tracks");
-                    for (Object o : array) {
-                        System.out.println(o);
-                    }
-                }
-                trackMapper.update(track);
-            }*/
+            }
             gpsData.setVehicle_status(split[12]);
             gpsData.setNet_mcc(split[13]);
             gpsData.setNet_mnc(split[14]);
@@ -203,13 +183,17 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             Device dev = deviceDao.get(device);
             boolean acc = acc(status);
             if (acc) {
-                Track track = trackMapper.get(trackId);
+                if (trackId != null){
+                    gpsData.setTrackId(trackId);
+                }else {
+                    trackId = trackMapper.getLast().getTrackId();
+                }
                 String url = "https://tsapi.amap.com/v1/track/point/upload";
                 Map<String,String> map = new HashMap<>();
                 map.put("key","1c92d37732848ca864c4daac21454294");
                 map.put("sid",dev.getsId());
                 map.put("tid", dev.gettId());
-                map.put("trid", track.getTrackId());
+                map.put("trid", trackId);
                 JSONArray array = new JSONArray();
                 Map<String,String> map1 = new HashMap<>();
                 map1.put("location", gpsData.getLongitude() + "," + gpsData.getLatitude());
@@ -222,7 +206,12 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                 System.out.println(result);
             }else {
                 System.out.println("车辆熄火");
-                Track track = trackMapper.get(trackId);
+                Track track = null;
+                if (trackId != null){
+                    track = trackMapper.get(trackId);
+                }else {
+                    track = trackMapper.getLast();
+                }
                 track.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
                 String url = "https://tsapi.amap.com/v1/track/terminal/trsearch";
                 Map<String,String> map = new HashMap<>();
@@ -230,6 +219,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                 map.put("sid",dev.getsId());
                 map.put("tid",dev.gettId());
                 map.put("trid",track.getTrackId());
+                map.put("correction", "denoise=1,mapmatch=0");
                 String result = HttpClientUtil.doPost(url,map);
                 System.out.println(result);
                 JSONObject object = JSONObject.parseObject(result);

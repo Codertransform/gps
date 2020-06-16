@@ -26,6 +26,7 @@ public class OriginGPSData {
     private String satellites;          //GPS卫星数量
     private String voltage_unit;        //电池电压单位
     private String iccid;               //iccid
+    private String trackId;             //轨迹id
 
     public String getId() {
         return id;
@@ -211,6 +212,14 @@ public class OriginGPSData {
         this.iccid = iccid;
     }
 
+    public String getTrackId() {
+        return trackId;
+    }
+
+    public void setTrackId(String trackId) {
+        this.trackId = trackId;
+    }
+
     @Override
     public String toString() {
         JSONObject jsonObject = new JSONObject();
@@ -237,6 +246,7 @@ public class OriginGPSData {
         jsonObject.put("satellites",satellites);
         jsonObject.put("voltage_unit",voltage_unit);
         jsonObject.put("iccid",iccid);
+        jsonObject.put("trackId",trackId);
         return jsonObject.toString();
     }
 }

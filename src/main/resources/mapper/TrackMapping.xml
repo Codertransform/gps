@@ -18,6 +18,18 @@
         </if>
     </select>
 
+    <select id="getLast" resultType="Track">
+        select
+            a.id as "id",
+            a.track_id as "trackId",
+            a.car_id as "carId",
+            a.start_time as "startTime",
+            a.end_time as "endTime",
+            a.miles as "miles"
+        from track a
+        order by start_time desc limit 1
+    </select>
+
     <insert id="insert">
         insert into track(
             id,

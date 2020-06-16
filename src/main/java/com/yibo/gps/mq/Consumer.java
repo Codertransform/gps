@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.yibo.gps.dao.TransDao;
 import com.yibo.gps.entity.TransData;
 import com.yibo.gps.utils.EntityIdGenerate;
+import com.yibo.gps.utils.HexConvert;
 import com.yibo.gps.utils.HttpClientUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
@@ -47,5 +48,16 @@ public class Consumer {
         data.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         transDao.insert(data);
         System.out.println("收到消息："+result);
+
+        if (jsonObject.get("trackId") != null){
+
+        }
+    }
+
+    private boolean acc(String status){
+        String str = HexConvert.hexString2binaryString(status.substring(4,6));
+        char ch = str.charAt(5);
+        System.out.println(ch);
+        return ch != '0';
     }
 }
