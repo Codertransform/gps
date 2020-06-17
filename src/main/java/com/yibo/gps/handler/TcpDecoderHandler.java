@@ -1,12 +1,16 @@
 package com.yibo.gps.handler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.yibo.gps.dao.DeviceDao;
 import com.yibo.gps.dao.OriginDataMapper;
 import com.yibo.gps.dao.TrackMapper;
+import com.yibo.gps.entity.Device;
 import com.yibo.gps.entity.OriginGPSData;
+import com.yibo.gps.entity.Track;
 import com.yibo.gps.mq.Producer;
 import com.yibo.gps.utils.EntityIdGenerate;
 import com.yibo.gps.utils.HexConvert;
+import com.yibo.gps.utils.HttpClientUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,7 +25,9 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @ChannelHandler.Sharable
@@ -82,6 +88,32 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             String mon = date.substring(2,4);
             String year = new SimpleDateFormat("yy").format(new Date()) + date.substring(4,6);
             gpsData.setDate(year + "-" + mon + "-" + day);
+            Device device = new Device();
+            device.setDeviceId(gpsData.getSerialNumber());
+            Device dev = deviceDao.get(device);
+            boolean acc = acc(split[12]);
+            if (acc){
+                System.out.println("车辆启动");
+                String url = "https://tsapi.amap.com/v1/track/trace/add";
+                Map<String,String> map = new HashMap<>();
+                map.put("key","1c92d37732848ca864c4daac21454294");
+                map.put("sid",dev.getsId());
+                map.put("tid",dev.gettId());
+                String result = HttpClientUtil.doPost(url,map);
+                System.out.println(result);
+                JSONObject object = JSONObject.parseObject(result);
+                if (object.get("errcode").toString().equals("10000")){
+                    JSONObject json = object.getJSONObject("data");
+                    Track track = new Track();
+                    track.setId(EntityIdGenerate.generateId());
+                    track.setTrackId(json.get("trid").toString());
+                    track.setStartTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                    track.setCarId(dev.getCarId());
+                    trackMapper.insert(track);
+                    trackId = track.getTrackId();
+                    gpsData.setTrackId(trackId);
+                }
+            }
             gpsData.setVehicle_status(split[12]);
             gpsData.setNet_mcc(split[13]);
             gpsData.setNet_mnc(split[14]);
@@ -95,7 +127,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             }else {
                 gpsData.setIccid(split[17]);
             }
-            int i = originDataMapper.insert(gpsData);
+            originDataMapper.insert(gpsData);
             producer.sendMsg("gps_transform_data",gpsData.toString());
             System.out.println("接收到数据" + gpsData);
         }
@@ -154,7 +186,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             gpsData.setNet_mnc(String.valueOf(Long.parseLong(hexString.substring(78,80),16)));
             gpsData.setNet_lac(String.valueOf(Long.parseLong(hexString.substring(80,84),16)));
             gpsData.setNet_cellid(String.valueOf(Long.parseLong(hexString.substring(84,88),16)));
-            int i = originDataMapper.insert(gpsData);
+            originDataMapper.insert(gpsData);
             producer.sendMsg("gps_transform_data",gpsData.toString());
             System.out.println("收到发来的消息：" + gpsData);
         }
