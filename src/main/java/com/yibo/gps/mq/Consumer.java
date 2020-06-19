@@ -105,9 +105,8 @@ public class Consumer {
             map.put("sid",dev.getsId());
             map.put("tid",dev.gettId());
             map.put("trid",track.getTrackId());
-            map.put("correction", "denoise=1,mapmatch=0");
+            map.put("correction", "denoise=1,mapmatch=1");
             String result2 = HttpClientUtil.doGet(url,map);
-            System.out.println(result2);
             JSONObject object1 = JSONObject.parseObject(result2);
             if (object1.getString("errcode").equals("10000")) {
                 JSONObject jsonObject1 = object1.getJSONObject("data");
