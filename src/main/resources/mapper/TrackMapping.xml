@@ -8,6 +8,7 @@
             a.id as "id",
             a.track_id as "trackId",
             a.car_id as "carId",
+            a.device_id as "deviceId",
             a.start_time as "startTime",
             a.end_time as "endTime",
             a.miles as "miles"
@@ -23,10 +24,15 @@
             a.id as "id",
             a.track_id as "trackId",
             a.car_id as "carId",
+            a.device_id as "deviceId",
             a.start_time as "startTime",
             a.end_time as "endTime",
             a.miles as "miles"
         from track a
+        where 1=1
+        <if test="deviceId != null and deviceId != ''">
+            and a.device_id = #{deviceId}
+        </if>
         order by start_time desc limit 1
     </select>
 
@@ -35,6 +41,7 @@
             id,
             track_id,
             car_id,
+            device_id,
             start_time,
             end_time,
             miles
@@ -43,6 +50,7 @@
             #{id},
             #{trackId},
             #{carId},
+            #{deviceId},
             #{startTime},
             #{endTime},
             #{miles}
@@ -53,6 +61,7 @@
         update track set
             track_id = #{trackId},
             car_id = #{carId},
+            device_id = #{deviceId},
             start_time = #{startTime},
             end_time = #{endTime},
             miles = #{miles}

@@ -100,7 +100,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                 map.put("sid",dev.getsId());
                 map.put("tid",dev.gettId());
                 String result = HttpClientUtil.doPost(url,map);
-                System.out.println(result);
+                System.out.println("轨迹创建："+result);
                 JSONObject object = JSONObject.parseObject(result);
                 if (object.get("errcode").toString().equals("10000")){
                     JSONObject json = object.getJSONObject("data");
@@ -109,6 +109,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                     track.setTrackId(json.get("trid").toString());
                     track.setStartTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
                     track.setCarId(dev.getCarId());
+                    track.setDeviceId(gpsData.getSerialNumber());
                     trackMapper.insert(track);
                     trackId = track.getTrackId();
                     gpsData.setTrackId(trackId);

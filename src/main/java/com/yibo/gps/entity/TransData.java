@@ -3,6 +3,7 @@ package com.yibo.gps.entity;
 public class TransData {
     private String id;
     private String originId;
+    private String deviceId;
     private String latitude;
     private String longitude;
     private String time;
@@ -21,6 +22,14 @@ public class TransData {
 
     public void setOriginId(String originId) {
         this.originId = originId;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getLatitude() {

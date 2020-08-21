@@ -25,8 +25,6 @@ import java.util.Map;
 @Service
 public class Consumer {
 
-    private static String trackId;
-
     @Autowired
     private TransDao transDao;
 
@@ -38,6 +36,7 @@ public class Consumer {
 
     @JmsListener(destination = "gps_transform_data")
     public void receiveMsg(String text) throws ParseException {
+        //配置坐标转换接口参数
         Map<String,String> map = new HashMap<>();
         String TRANSFORM_URL = "https://restapi.amap.com/v3/assistant/coordinate/convert";
         String KEY = "1c92d37732848ca864c4daac21454294";
@@ -50,9 +49,11 @@ public class Consumer {
         map.put("coordsys", COORDSYS);
         map.put("locations",lon + "," + lat);
         map.put("output","JSON");
+        //调用高德坐标转换接口
         String result  = HttpClientUtil.doGet(TRANSFORM_URL,map);
         System.out.println("收到消息："+result);
 
+        //将转换后的坐标信息封装并保存到数据库
         JSONObject object = JSON.parseObject(result);
         String[] loca = object.getString("locations").split(",");
         String longitude = loca[0];
@@ -60,13 +61,19 @@ public class Consumer {
         TransData data = new TransData();
         data.setId(EntityIdGenerate.generateId());
         data.setOriginId(String.valueOf(jsonObject.get("id")));
+        data.setDeviceId(String.valueOf(jsonObject.get("serialNumber")));
         data.setLongitude(longitude);
         data.setLatitude(latitude);
         data.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         transDao.insert(data);
 
+        Track track = null;
         if (jsonObject.get("trackId") != null){
-            trackId = jsonObject.getString("trackId");
+            track = trackMapper.get(jsonObject.getString("trackId"));
+        }else {
+            Track t = new Track();
+            t.setDeviceId(jsonObject.getString("serialNumber"));
+            track = trackMapper.getLast(t);
         }
 
         Device device = new Device();
@@ -78,7 +85,7 @@ public class Consumer {
             map.put("key","1c92d37732848ca864c4daac21454294");
             map.put("sid",dev.getsId());
             map.put("tid", dev.gettId());
-            map.put("trid", trackId);
+            map.put("trid", track.getTrackId());
             JSONArray array = new JSONArray();
             Map<String,String> map1 = new HashMap<>();
             map1.put("location", longitude + "," + latitude);
@@ -92,12 +99,6 @@ public class Consumer {
             System.out.println(result1);
         }else {
             System.out.println("车辆熄火");
-            Track track = null;
-            if (trackId != null){
-                track = trackMapper.get(trackId);
-            }else {
-                track = trackMapper.getLast();
-            }
             track.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
             String url = "https://tsapi.amap.com/v1/track/terminal/trsearch";
             map.clear();

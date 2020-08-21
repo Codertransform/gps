@@ -13,5 +13,5 @@ public interface TrackMapper {
 
     void update(Track track);
 
-    Track getLast();
+    Track getLast(Track track);
 }
