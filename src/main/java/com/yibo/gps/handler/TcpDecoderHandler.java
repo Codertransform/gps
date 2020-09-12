@@ -24,10 +24,7 @@ import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @ChannelHandler.Sharable
@@ -81,7 +78,8 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             gpsData.setLat_flag(split[6]);
             gpsData.setLongitude(position(split[7]));
             gpsData.setLon_flag(split[8]);
-            gpsData.setSpeed(split[9]);
+            DecimalFormat df = new DecimalFormat("##0.00");
+            gpsData.setSpeed(df.format(Double.parseDouble(split[9])*1.825));
             gpsData.setDirection(split[10]);
             String date = split[11];
             String day = date.substring(0,2);
@@ -133,7 +131,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             System.out.println("接收到数据" + gpsData);
         }
         if (s == '$'){
-            String hexString = HexConvert.BinaryToHexString( data ).replace( " ","" );
+            String hexString = HexConvert.BinaryToHexString( data ).replace( " ","");
             System.out.println(hexString);
             gpsData.setId(EntityIdGenerate.generateId());
             gpsData.setSerialNumber(hexString.substring(2,12));
@@ -174,7 +172,8 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
                     gpsData.setLon_flag("W");
                 }
             }
-            gpsData.setSpeed(String.valueOf(Integer.parseInt(hexString.substring(44,47))*1.852));
+            DecimalFormat df = new DecimalFormat("##0.00");
+            gpsData.setSpeed(df.format(Double.parseDouble(hexString.substring(44,47))*1.852));
             gpsData.setDirection(hexString.substring(47,50)+".00");
             gpsData.setVehicle_status(hexString.substring(50,58));
             gpsData.setGSM(String.valueOf(Long.parseLong(hexString.substring(62,64), 16)));

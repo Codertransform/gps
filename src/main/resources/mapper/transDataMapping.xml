@@ -10,6 +10,7 @@
             device_id,
             latitude,
             longitude,
+            speed,
             time
         )
         values (
@@ -18,6 +19,7 @@
             #{deviceId},
             #{latitude},
             #{longitude},
+            #{speed},
             #{time}
         )
     </insert>

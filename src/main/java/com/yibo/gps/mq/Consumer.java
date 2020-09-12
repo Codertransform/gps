@@ -64,6 +64,8 @@ public class Consumer {
         data.setDeviceId(String.valueOf(jsonObject.get("serialNumber")));
         data.setLongitude(longitude);
         data.setLatitude(latitude);
+        data.setLatitude(latitude);
+        data.setSpeed(jsonObject.getString("speed"));
         data.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         transDao.insert(data);
 

@@ -6,6 +6,7 @@ public class TransData {
     private String deviceId;
     private String latitude;
     private String longitude;
+    private String speed;
     private String time;
 
     public String getId() {
@@ -46,6 +47,14 @@ public class TransData {
 
     public void setLongitude(String longitude) {
         this.longitude = longitude;
+    }
+
+    public String getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(String speed) {
+        this.speed = speed;
     }
 
     public String getTime() {
