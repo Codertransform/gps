@@ -66,7 +66,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             int h = Integer.parseInt(time.substring(0,2)) + 8;
             String hour = "";
             if (h < 10) {
-                 hour = "0" + h;
+                hour = "0" + h;
             }else {
                 hour = String.valueOf(h);
             }
