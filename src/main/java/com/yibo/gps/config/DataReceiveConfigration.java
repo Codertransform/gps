@@ -24,9 +24,9 @@ public class DataReceiveConfigration {
                             .subscribe();
                     return Flux.never();
                 })
-                //实例只写了如何添加handler,可添加delimiter，tcp生命周期，decoder，encoder等handler
+                //实例只写了如何添加handler,可添加elimiter，tcp生命周期，decoder，encoder等handler
                 .doOnConnection(conn ->conn.addHandler(tcpDecoderHandler))
-                .port(8081)
+                .port(514)
                 .bindNow();
     }
 }

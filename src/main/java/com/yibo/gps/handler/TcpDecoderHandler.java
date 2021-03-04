@@ -84,7 +84,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             String date = split[11];
             String day = date.substring(0,2);
             String mon = date.substring(2,4);
-            String year = new SimpleDateFormat("yy").format(new Date()) + date.substring(4,6);
+            String year = new SimpleDateFormat("yyyy").format(new Date()).substring(0,2) + date.substring(4,6);
             gpsData.setDate(year + "-" + mon + "-" + day);
             Device device = new Device();
             device.setDeviceId(gpsData.getSerialNumber());
@@ -148,7 +148,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
             gpsData.setTime(hour + ":" + min + ":" +sec);
             String day = hexString.substring(18,20);
             String mon = hexString.substring(20,22);
-            String year = new SimpleDateFormat("yy").format(new Date()) + hexString.substring(22,24);
+            String year = new SimpleDateFormat("yyyy").format(new Date()).substring(0,2) + hexString.substring(22,24);
             gpsData.setDate(year + "-" + mon + "-" + day);
             gpsData.setLatitude(position2(hexString.substring(24,32)));
             gpsData.setLongitude(position2(hexString.substring(34,43)));

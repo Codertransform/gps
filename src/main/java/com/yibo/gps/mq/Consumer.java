@@ -101,27 +101,25 @@ public class Consumer {
             System.out.println(result1);
         }else {
             System.out.println("车辆熄火");
-            if (track != null) {
-                track.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                String url = "https://tsapi.amap.com/v1/track/terminal/trsearch";
-                map.clear();
-                map.put("key","1c92d37732848ca864c4daac21454294");
-                map.put("sid",dev.getsId());
-                map.put("tid",dev.gettId());
-                map.put("trid",track.getTrackId());
-                map.put("correction", "denoise=1,mapmatch=1");
-                String result2 = HttpClientUtil.doGet(url,map);
-                JSONObject object1 = JSONObject.parseObject(result2);
-                if (object1.getString("errcode").equals("10000")) {
-                    JSONObject jsonObject1 = object1.getJSONObject("data");
-                    JSONArray array = jsonObject1.getJSONArray("tracks");
-                    for (int i = 0; i < array.size(); i++) {
-                        JSONObject obj = array.getJSONObject(i);
-                        track.setMiles(obj.getString("distance"));
-                    }
+            track.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            String url = "https://tsapi.amap.com/v1/track/terminal/trsearch";
+            map.clear();
+            map.put("key","1c92d37732848ca864c4daac21454294");
+            map.put("sid",dev.getsId());
+            map.put("tid",dev.gettId());
+            map.put("trid",track.getTrackId());
+            map.put("correction", "denoise=1,mapmatch=1");
+            String result2 = HttpClientUtil.doGet(url,map);
+            JSONObject object1 = JSONObject.parseObject(result2);
+            if (object1.getString("errcode").equals("10000")) {
+                JSONObject jsonObject1 = object1.getJSONObject("data");
+                JSONArray array = jsonObject1.getJSONArray("tracks");
+                for (int i = 0; i < array.size(); i++) {
+                    JSONObject obj = array.getJSONObject(i);
+                    track.setMiles(obj.getString("distance"));
                 }
-                trackMapper.update(track);
             }
+            trackMapper.update(track);
         }
     }
 
