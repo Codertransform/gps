@@ -1,0 +1,4 @@
+2021-05-30 13:53:42.806  INFO 3616 --- [main] com.yibo.gps.GpsApplicationTests         : Starting GpsApplicationTests on DESKTOP-2R7EJEI with PID 3616 (started by WZY in E:\IdeaProjects\gps)
+2021-05-30 13:53:42.806  INFO 3616 --- [main] com.yibo.gps.GpsApplicationTests         : No active profile set, falling back to default profiles: default
+2021-05-30 13:53:44.586  INFO 3616 --- [main] o.m.pooled.jms.JmsPoolConnectionFactory  : Provided ConnectionFactory implementation is JMS 2.0+ capable.
+2021-05-30 13:53:46.881  INFO 3616 --- [main] com.yibo.gps.GpsApplicationTests         : Started GpsApplicationTests in 4.531 seconds (JVM running for 6.049)
