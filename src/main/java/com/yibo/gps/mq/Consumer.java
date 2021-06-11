@@ -129,7 +129,7 @@ public class Consumer {
         return ch != '0';
     }
 
-    @JmsListener(destination = "ActiveMQ.DLQ")
+    /*@JmsListener(destination = "ActiveMQ.DLQ")
     public void receiveMsg2(String text) throws ParseException {
         //配置坐标转换接口参数
         Map<String,String> map = new HashMap<>();
@@ -216,5 +216,5 @@ public class Consumer {
             }
             trackMapper.update(track);
         }
-    }
+    }*/
 }

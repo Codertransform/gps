@@ -47,7 +47,7 @@ public class TcpDecoderHandler extends MessageToMessageDecoder<ByteBuf> {
     private Producer producer;
 
     @Override
-    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) {
         logger.info("解析client上报数据");
         byte[] data = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(data);
